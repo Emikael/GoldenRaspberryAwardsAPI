@@ -1,0 +1,17 @@
+spring:
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        generate_statistics: false
+  h2:
+    console:
+      enabled: false
+server:
+  error:
+    include-stacktrace: never
+    include-exception: false
+logging:
+  level:
+    com.emikaelsilveira.goldenraspberry: INFO
+    root: WARN
