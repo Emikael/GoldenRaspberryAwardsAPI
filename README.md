@@ -1,7 +1,7 @@
 # Golden Raspberry Awards API - Implementation Guide
 
 ## Overview
-This is a RESTful API built with Spring Boot 3.2.2 and Java 23 that manages Golden Raspberry Awards data, specifically focusing on producer award intervals. The API reads movie data from a CSV file and provides endpoints to analyze producer award patterns.
+This is a RESTful API built with Spring Boot 3.3.0 and Java 23 that manages Golden Raspberry Awards data, specifically focusing on producer award intervals. The API reads movie data from a CSV file and provides endpoints to analyze producer award patterns.
 
 ## Architecture
 
@@ -10,7 +10,7 @@ The project follows Clean Architecture principles with clear separation of conce
 ```
 src/
 ├── main/
-│   ├── java/com/company/goldenraspberry/
+│   ├── java/com/emikaelsilveira/goldenraspberry/
 │   │   ├── GoldenRaspberryApplication.java     # Main application entry point
 │   │   ├── controller/
 │   │   │   └── ProducerController.java         # REST API endpoints
@@ -22,16 +22,35 @@ src/
 │   │   ├── entity/
 │   │   │   └── Movie.java                      # JPA entity
 │   │   ├── dto/
-│   │   │   └── ProducerIntervalDto.java        # Data transfer objects
-│   │   └── config/
-│   │       └── SecurityConfig.java             # Security configuration
+│   │   │   ├── ProducerIntervalDto.java        # Data transfer objects
+│   │   │   └── ProducerInterval.java           # Producer interval data
+│   │   ├── config/
+│   │   │   ├── SecurityConfig.java             # Security configuration
+│   │   │   └── filter/
+│   │   │       ├── ApiKeyAuthFilter.java       # API key authentication filter
+│   │   │       └── ApiKeyAuthentication.java   # API key authentication object
+│   │   ├── exception/
+│   │   │   ├── CSVReaderException.java         # CSV processing exceptions
+│   │   │   └── H2DatabaseException.java        # Database exceptions
+│   │   └── utilities/
+│   │       └── Utils.java                      # Utility functions
 │   └── resources/
 │       ├── application.yml                     # Application configuration
-│       └── data.csv                            # Sample movie data
+│       ├── application-dev.yml                 # Development profile
+│       ├── application-prod.yml                # Production profile
+│       ├── application-test.yml                # Test profile
+│       └── movielist.csv                       # Sample movie data
 └── test/
-    └── java/com/company/goldenraspberry/
+    └── java/com/emikaelsilveira/goldenraspberry/
         └── integration/
-            └── ProducerControllerIntegrationTest.java  # Integration tests
+            ├── ProducerControllerIntegrationTest.java  # API endpoint tests
+            ├── ApiContractIntegrationTest.java         # API contract tests
+            ├── BusinessLogicIntegrationTest.java       # Business logic tests
+            ├── CsvProcessingIntegrationTest.java       # CSV processing tests
+            ├── DataLayerIntegrationTest.java           # Data layer tests
+            ├── ErrorHandlingIntegrationTest.java       # Error handling tests
+            ├── SecurityIntegrationTest.java            # Security tests
+            └── TransactionIntegrationTest.java         # Transaction tests
 ```
 
 ## Getting Started
@@ -93,7 +112,7 @@ Returns producers with minimum and maximum intervals between consecutive awards.
 ```bash
 curl -X GET "http://localhost:8080/api/producers/intervals" \
      -H "Accept: application/json" \
-     -H "x-api-key: {{X_API_KEY}}"
+     -H "x-api-key: {{$X_API_KEY}}"
 ```
 
 #### Health Check
@@ -112,8 +131,8 @@ spring:
   datasource:
     url: jdbc:h2:mem:goldenraspberry
     driver-class-name: org.h2.Driver
-    username: sa
-    password: ""
+    username: {{$DB_USERNAME}}
+    password: {{$DB_PASSWORD}}
 
 # Server Configuration
 server:
@@ -122,7 +141,7 @@ server:
 # CSV Data Configuration
 app:
   csv:
-    file-path: data.csv
+    file-path: movielist.csv
     encoding: UTF-8
 ```
 
@@ -136,8 +155,8 @@ app:
 ### CSV Format
 The application expects CSV data with the following structure:
 ```csv
-year,title,studios,producers,winner
-1980,Movie Title,Studio Name,Producer Name,yes
+year;title;studios;producers;winner
+1980;Movie Title;Studio Name;Producer Name;yes
 ```
 
 ### Producer Name Parsing
@@ -155,12 +174,18 @@ The system intelligently parses producer names that may be:
 
 ## Security Features
 
+### API Key Authentication
+- **Authentication Method**: Custom API key via `x-api-key` header
+- **Required for**: All producer endpoints (`/api/producers/*`)
+- **Public Access**: Only actuator endpoints (`/actuator/*`)
+- **Filter Implementation**: Custom `ApiKeyAuthFilter` with Spring Security integration
+
 ### Spring Security Configuration
 - **CSRF Protection**: Disabled for API usage
-- **Headers Security**: Prevents clickjacking, MIME sniffing
+- **Headers Security**: Frame options disabled for H2 console access
 - **Stateless Sessions**: No server-side sessions for REST API
-- **Public API Access**: Producer endpoints are publicly accessible
-- **Actuator Security**: Health endpoints are public, others require authentication
+- **Authentication Filter**: Custom API key authentication before standard filters
+- **Actuator Security**: Health endpoints are public, producer endpoints require API key
 
 ### Security Headers
 - `X-Frame-Options: DENY`
@@ -172,11 +197,14 @@ The system intelligently parses producer names that may be:
 
 ### Integration Tests
 Comprehensive integration tests cover:
-- API endpoint functionality
-- Data processing accuracy
-- HTTP response validation
-- Security configuration
-- Performance benchmarks
+- **API Contract Tests**: Endpoint functionality and response validation
+- **Business Logic Tests**: Core producer interval calculation logic
+- **CSV Processing Tests**: Data import and parsing validation
+- **Data Layer Tests**: Repository and entity persistence
+- **Error Handling Tests**: Exception scenarios and error responses
+- **Security Tests**: Authentication and authorization validation
+- **Transaction Tests**: Database transaction integrity
+- **Producer Controller Tests**: Complete API endpoint integration
 
 **Running Tests:**
 ```bash
@@ -346,7 +374,7 @@ SERVER_PORT=8081 ./mvnw spring-boot:run
 
 #### CSV Data Not Loading
 - Verify `movielist.csv` exists in `src/main/resources/`
-- Check CSV format matches expected structure
+- Check CSV format uses semicolon (;) separators, not commas
 - Review application logs for parsing errors
 
 ## Additional Resources
