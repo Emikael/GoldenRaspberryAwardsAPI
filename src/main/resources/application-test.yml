@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+logging:
+  level:
+    com.emikaelsilveira.goldenraspberry: WARN
+    org.springframework: WARN
