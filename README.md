@@ -167,7 +167,7 @@ The system intelligently parses producer names that may be:
 - `Strict-Transport-Security`
 - `Referrer-Policy: strict-origin-when-cross-origin`
 
-## 🧪 Testing
+## Testing
 
 ### Integration Tests
 Comprehensive integration tests cover:

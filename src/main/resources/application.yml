@@ -1,4 +1,3 @@
-# Golden Raspberry Awards API Configuration
 spring:
   application:
     name: golden-raspberry-awards-api
