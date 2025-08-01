@@ -3,7 +3,7 @@
 ## Overview
 This is a RESTful API built with Spring Boot 3.2.2 and Java 23 that manages Golden Raspberry Awards data, specifically focusing on producer award intervals. The API reads movie data from a CSV file and provides endpoints to analyze producer award patterns.
 
-## 🏗️ Architecture
+## Architecture
 
 The project follows Clean Architecture principles with clear separation of concerns:
 
@@ -34,7 +34,7 @@ src/
             └── ProducerControllerIntegrationTest.java  # Integration tests
 ```
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Java 23 (JDK 23)
@@ -92,7 +92,8 @@ Returns producers with minimum and maximum intervals between consecutive awards.
 **Example Usage:**
 ```bash
 curl -X GET "http://localhost:8080/api/producers/intervals" \
-     -H "Accept: application/json"
+     -H "Accept: application/json" \
+     -H "x-api-key: {{X_API_KEY}}"
 ```
 
 #### Health Check
@@ -100,7 +101,7 @@ curl -X GET "http://localhost:8080/api/producers/intervals" \
 
 Returns application health status.
 
-## 🔧 Configuration
+## Configuration
 
 ### Application Properties
 Key configuration options in `application.yml`:
@@ -130,7 +131,7 @@ app:
 - **Test** (`test`): Minimal logging, separate test database
 - **Production** (`prod`): Optimized for production, security hardened
 
-## 📊 Data Processing
+## Data Processing
 
 ### CSV Format
 The application expects CSV data with the following structure:
@@ -152,7 +153,7 @@ The system intelligently parses producer names that may be:
 4. Identifies minimum and maximum intervals
 5. Returns all producers with min/max intervals
 
-## 🛡️ Security Features
+## Security Features
 
 ### Spring Security Configuration
 - **CSRF Protection**: Disabled for API usage
@@ -194,7 +195,7 @@ The test suite uses sample data with known producers and expected intervals:
 - Joel Silver (1989, 1990) - 1-year interval
 - Other producers with various intervals
 
-## 📈 Performance Considerations
+## Performance Considerations
 
 ### Database Optimization
 - **Indexing**: Strategic indexes on year, winner status
@@ -211,7 +212,7 @@ The test suite uses sample data with known producers and expected intervals:
 - **HTTP Caching**: Cache headers for static responses
 - **Application-Level**: Cacheable service methods
 
-## 🔍 Monitoring & Observability
+## Monitoring & Observability
 
 ### Spring Boot Actuator
 Available endpoints:
@@ -226,16 +227,16 @@ Structured logging with configurable levels:
 - **File Output**: Production-ready with rotation
 - **Levels**: DEBUG, INFO, WARN, ERROR per package
 
-## 🐳 Docker Support
+## Docker Support
 
 ### Multi-Stage Build
 ```dockerfile
 # Build stage with JDK 23
-FROM openjdk:23-jdk-slim as builder
+FROM eclipse-temurin:23-jdk as builder
 # ... build process
 
 # Runtime stage with JRE 23
-FROM openjdk:23-jre-slim
+FROM eclipse-temurin:23-jdk
 # ... runtime setup
 ```
 
@@ -250,7 +251,7 @@ JAVA_OPTS="-Xmx512m -Xms256m -XX:+UseG1GC"
 SPRING_PROFILES_ACTIVE=prod
 ```
 
-## 🔄 Development Workflow
+## Development Workflow
 
 ### Building
 ```bash
@@ -289,6 +290,7 @@ Features enabled in development:
 
 ### HTTP Status Codes
 - `200 OK`: Successful GET requests
+- `403 Forbiddeen`: Request isn't authorized
 - `405 Method Not Allowed`: Unsupported HTTP methods
 - `500 Internal Server Error`: Server-side errors
 
@@ -318,7 +320,7 @@ Features enabled in development:
 - **Metrics**: Prometheus + Grafana dashboards
 - **Alerting**: Health check failures, error rate spikes
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -343,37 +345,11 @@ SERVER_PORT=8081 ./mvnw spring-boot:run
 ```
 
 #### CSV Data Not Loading
-- Verify `data.csv` exists in `src/main/resources/`
+- Verify `movielist.csv` exists in `src/main/resources/`
 - Check CSV format matches expected structure
 - Review application logs for parsing errors
 
-### Logging
-Enable debug logging for troubleshooting:
-```yaml
-logging:
-  level:
-    com.emikaelsilveira.goldenraspberry: DEBUG
-```
-
-## 🤝 Contributing
-
-### Code Style
-- Follow Java conventions
-- Use meaningful variable names
-- Add comprehensive javadoc comments
-- Maintain test coverage above 80%
-
-### Pull Request Process
-1. Create feature branch from `main`
-2. Implement changes with tests
-3. Update documentation
-4. Submit PR with clear description
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🔗 Additional Resources
+## Additional Resources
 
 - [Spring Boot Documentation](https://spring.io/projects/spring-boot)
 - [Spring Security Reference](https://spring.io/projects/spring-security)
